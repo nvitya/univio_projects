@@ -1,0 +1,5 @@
+You need to include the UNIVIO "device" directory here.
+
+link a local copy:
+
+ ln -s /some_local_workspace/github/univio/device device
