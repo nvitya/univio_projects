@@ -7,7 +7,6 @@
 #define SRC_TFT_DISP_TEST_H_
 
 #include "gfxbase.h"
-#include "gfxtextscreen.h"
 
 #define TEST_CHANGE_MS  8000
 
