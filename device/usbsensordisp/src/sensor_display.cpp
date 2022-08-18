@@ -4,6 +4,7 @@
 // authors:  nvitya
 
 #include "platform.h"
+#include "mp_printf.h"
 
 #include "hwpins.h"
 #include "traces.h"
@@ -26,7 +27,7 @@ TGfxFont font_sans_9(&FreeSansBold9pt7b);
 TGfxFont font_sans_18(&FreeSansBold18pt7b);
 //TGfxFont font_sans_small(&FreeSansBold12pt7b);
 
-TGfxFont font_sans_24(&FreeSansBold24pt7b);
+//TGfxFont font_sans_24(&FreeSansBold24pt7b);
 TGfxFont font_sans_32(&FreeSansBold32pt7b);
 TGfxFont font_sans_48(&FreeSansBold48pt7b);
 
@@ -34,6 +35,18 @@ void TSensorDisplay::Init()
 {
   testid = START_TEST;
   last_update_ms = mscounter();
+
+  hist_tc.color = color_tc;
+  hist_tc.Init(0, 92);
+
+  hist_rh.color = color_rh;
+  hist_rh.Init(0, 168);
+
+  hist_pa.color = color_pa;
+  hist_pa.Init(0, 244);
+
+  mp_snprintf(date_text, sizeof(date_text), "2022-08-18");
+  mp_snprintf(day_text,  sizeof(date_text), "Thursday");
 
   ReDraw();
 }
@@ -54,161 +67,84 @@ void TSensorDisplay::Run()
   last_update_ms = mscounter();
 }
 
-#if 0
-
 void TSensorDisplay::ReDraw()
 {
   disp.FillScreen(0);
 
-  pos_y = 10;
-  pos_x = 10;
+  DrawUnits();
+  DrawDate();
+  DrawClock();
+  DrawValues();
 
-  //dwidth = disp.width / 3;
-  //dheight = disp.height - 20;
-
-  disp.color = RGB16(255, 255, 255);
-
-  disp.SetFont(&font_sans_big);
-  disp.SetCursor(5, 5);
-  disp.DrawString("13:49");
-
-  disp.SetFont(&font_sans_small);
-  disp.SetCursor(5, 80);
-  disp.DrawString("2022-06-12, SUN");
-
-  disp.SetFont(&font_sans_big);
-  disp.color = RGB16(0x00, 0xFF, 0x00);
-  disp.SetCursor(300, 12);
-  disp.DrawString("26.7");
-
-  disp.color = RGB16(0x00, 0xFF, 0xFF);
-  disp.SetCursor(350, 112);
-  disp.DrawString("41");
-
-  disp.color = RGB16(0xFF, 0x40, 0xFF);
-  //disp.color = RGB16(0xFF, 0xFF, 0x40);
-  disp.SetCursor(300, 220);
-  disp.DrawString("1008");
-
-  disp.color = RGB16(0x40, 0x40, 0x40);
-  disp.SetFont(&font_sans_small);
-  disp.SetCursor(480 - 35, 60);
-  disp.DrawString("*C");
-  disp.SetCursor(480 - 35, 160);
-  disp.DrawString("%");
-  disp.SetCursor(480 - 60, 320 - 24);
-  disp.DrawString("hPa");
+  hist_tc.Draw();
+  hist_rh.Draw();
+  hist_pa.Draw();
 }
 
-#endif
-
-#if 1
-
-void TSensorDisplay::ReDraw()
+void TSensorDisplay::DrawClock()
 {
-  disp.FillScreen(0);
-
-  pos_y = 10;
-  pos_x = 10;
-
-  //dwidth = disp.width / 3;
-  //dheight = disp.height - 20;
-
-#if 0
-
-  disp.color = RGB16(0xF0, 0xF0, 0x40);
-  disp.SetFont(&font_sans_48);
-  disp.SetCursor(240, 1);
-  disp.DrawString("13:49");
-
-  disp.color = RGB16(255, 255, 255);
-  disp.SetFont(&font_sans_18);
-  disp.SetCursor(5, 7);
-  disp.DrawString("2022-06-12");
-  disp.SetCursor(5, 50);
-  disp.DrawString("Sunday");
-
-
-  disp.SetFont(&font_sans_32);
-  disp.color = RGB16(0x00, 0xFF, 0x00);
-  disp.SetCursor(34, 100);
-  disp.DrawString("26.7");
-
-  disp.color = RGB16(0x00, 0xFF, 0xFF);
-  disp.SetCursor(90, 175);
-  disp.DrawString("41");
-
-  disp.color = RGB16(0xFF, 0x40, 0xFF);
-  //disp.color = RGB16(0xFF, 0xFF, 0x40);
-  disp.SetCursor(9, 254);
-  disp.DrawString("1008");
-
-  disp.color = RGB16(0x40, 0x40, 0x40);
-  disp.SetFont(&font_sans_9);
-  disp.SetCursor(168, 120);
-  disp.DrawString("*C");
-  disp.SetCursor(173, 200);
-  disp.DrawString("%");
-  disp.SetCursor(157, 276);
-  disp.DrawString("hPa");
-
-  disp.color = RGB16(0x20, 0x20, 0x20);
-  disp.FillRect(194,  90, 280, 70, disp.color);
-  disp.FillRect(194, 166, 280, 70, disp.color);
-  disp.FillRect(194, 244, 280, 70, disp.color);
-
-#else
-
-  int16_t xs = 320;
-  int16_t xs2 = 130;
-
   disp.color = RGB16(0xF0, 0xF0, 0x40);
   disp.SetFont(&font_sans_48);
   disp.SetCursor(20, 1);
-  disp.DrawString("13:49");
 
-  //disp.color = RGB16(255, 255, 255);
+  int hours = v_seconds / 3600;
+  int minutes = (v_seconds % 3600) / 60;
+
+  disp.printf("%02d:%02d", hours, minutes);
+}
+
+void TSensorDisplay::DrawDate()
+{
+  disp.color = RGB16(0xF0, 0xF0, 0x40);
+
   disp.SetFont(&font_sans_18);
   disp.SetCursor(290, 7);
-  disp.DrawString("2022-06-12");
-  disp.SetCursor(320, 50);
-  disp.DrawString("Sunday");
+  disp.DrawString(date_text); // fix length
+
+  uint16_t tw = disp.TextWidth(day_text);
+  disp.SetCursor(290 + 90 - tw / 2, 50);
+  disp.DrawString(day_text);  // variable length
+}
+
+void TSensorDisplay::DrawValues()
+{
+  int16_t xs = 478;
+  char    txt[16];
+  uint16_t tw;
 
   disp.SetFont(&font_sans_32);
-  disp.color = RGB16(0x00, 0xFF, 0x00);
-  disp.SetCursor(34 + xs, 100);
-  disp.DrawString("26.7");
 
-  disp.color = RGB16(0x00, 0xFF, 0xFF);
-  disp.SetCursor(90 + xs, 175);
-  disp.DrawString("41");
+  disp.color = color_tc;
+  mp_snprintf(txt, sizeof(txt), "%.1f", v_tc / 10.0);
+  tw = disp.TextWidth(txt);
+  disp.SetCursor(xs - tw, 100);
+  disp.DrawString(txt);
 
-  disp.color = RGB16(0xFF, 0x40, 0xFF);
-  //disp.color = RGB16(0xFF, 0xFF, 0x40);
-  disp.SetCursor(12 + xs, 254);
-  disp.DrawString("1008");
+  disp.color = color_rh;
+  mp_snprintf(txt, sizeof(txt), "%d", v_rh);
+  tw = disp.TextWidth(txt);
+  disp.SetCursor(xs - tw, 175);
+  disp.DrawString(txt);
+
+  disp.color = color_pa;
+  mp_snprintf(txt, sizeof(txt), "%d", v_pa);
+  tw = disp.TextWidth(txt);
+  disp.SetCursor(xs - tw, 254);
+  disp.DrawString(txt);
+}
+
+void TSensorDisplay::DrawUnits()
+{
+  int16_t xs = 140;
+  int16_t py =  30 + y_data;
 
   disp.color = RGB16(0x40, 0x40, 0x40);
   disp.SetFont(&font_sans_9);
-  disp.SetCursor(165 + xs2, 122);
+  disp.SetCursor(165 + xs, py + 0 * h_data);
   disp.DrawString("*C");
-  disp.SetCursor(168 + xs2, 202);
+  disp.SetCursor(168 + xs, py + 1 * h_data);
   disp.DrawString("%");
-  disp.SetCursor(160 + xs2, 276);
+  disp.SetCursor(160 + xs, py + 2 * h_data);
   disp.DrawString("hPa");
-
-  disp.color = RGB16(0x10, 0x10, 0x10);
-  disp.FillRect(5,  92, 280, 70, disp.color);
-  disp.FillRect(5, 168, 280, 70, disp.color);
-  disp.FillRect(5, 244, 280, 70, disp.color);
-
-  disp.color = RGB16(0x20, 0x20, 0x20);
-  disp.FillRect(5,  92, 240, 70, disp.color);
-  disp.FillRect(5, 168, 240, 70, disp.color);
-  disp.FillRect(5, 244, 240, 70, disp.color);
-
-#endif
-
 }
 
-#endif
