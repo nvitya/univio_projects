@@ -1,5 +1,5 @@
-// file:     main_disp_color.cpp
-// brief:    VIHAL Color TFT LCD Display test
+// file:     main_meteodisp.cpp
+// brief:    USB Meteo Display Main
 // created:  2022-03-04
 // authors:  nvitya
 
@@ -16,6 +16,8 @@
 #include "hwsdram.h"
 #include "mscounter.h"
 #include "sensor_display.h"
+#include "uio_device.h"
+#include "usb_univio.h"
 
 #if SPI_SELF_FLASHING
   #include "spi_self_flashing.h"
@@ -49,6 +51,7 @@ extern "C" __attribute__((noreturn)) void _start(unsigned self_flashing)  // sel
 
 	// go on with the hardware initializations
 	board_pins_init();
+	traces_init();
 
 	TRACE("\r\n--------------------------------------\r\n");
 	TRACE("USB Sensor with Display\r\n");
@@ -76,6 +79,10 @@ extern "C" __attribute__((noreturn)) void _start(unsigned self_flashing)  // sel
 
 	g_display.Init();
 
+  g_uiodev.Init();
+
+  usb_device_init();
+
   TRACE("Starting main loop.\r\n");
 
 	unsigned hbclocks = SystemCoreClock / 20;  // start blinking fast
@@ -88,6 +95,12 @@ extern "C" __attribute__((noreturn)) void _start(unsigned self_flashing)  // sel
 	while (1)
 	{
 		t1 = CLOCKCNT;
+
+    usb_device_run();
+
+    g_uiodev.Run();
+
+    tracebuf.Run();
 
 		g_display.Run();
 

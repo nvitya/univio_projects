@@ -38,9 +38,9 @@ TBmp280           bmp280;
 bool TUioSensor::InitDevice()
 {
   basecfg.usb_vendor_id  = 0xDEAD;
-  basecfg.usb_product_id = 0x05E1;
+  basecfg.usb_product_id = 0xA5E2;
   strncpy(basecfg.manufacturer, "UNIVIO", sizeof(basecfg.manufacturer));
-  strncpy(basecfg.device_id, "USB-Sensor", sizeof(basecfg.device_id));
+  strncpy(basecfg.device_id, "Meteo Display", sizeof(basecfg.device_id));
 
   hwintflash.Init();
 

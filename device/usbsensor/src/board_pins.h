@@ -13,16 +13,12 @@
 #include "hwuart.h"
 #include "hwi2c.h"
 #include "hwdma.h"
-#include "i2cmanager.h"
 
 #define MAX_LEDS  4
 
 extern THwI2c         i2c;
 extern THwDmaChannel  i2c_txdma;
 extern THwDmaChannel  i2c_rxdma;
-
-extern TI2cManager    i2cmgr;
-
 
 extern TGpioPin   pin_led[MAX_LEDS];
 extern unsigned   pin_led_count;

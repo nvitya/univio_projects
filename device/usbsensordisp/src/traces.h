@@ -1,8 +1,7 @@
 /*
- *  file:     traces.h (uart)
+ *  file:     traces.h
  *  brief:    Trace message redirection to UART
- *  version:  1.00
- *  date:     2021-10-02
+ *  created:  2021-10-02
  *  authors:  nvitya
 */
 
@@ -10,17 +9,22 @@
 #define __Traces__h
 
 #include "hwuart.h"
+#include "tracebuf.h"
 
-extern THwUart   conuart;  // console uart
+extern void traces_init();
 
 #define TRACES
 
+#define TRACE_WAIT  0
+
 #ifdef TRACES
   // add trace calls
-  #define TRACE(...)  		{ conuart.printf( __VA_ARGS__ ); }
+  #define TRACE(...)  		  { tracebuf.printf( __VA_ARGS__ ); }
+  #define TRACE_FLUSH(...)  { tracebuf.Flush(); }
 #else
   // ignore traces
   #define TRACE(...)
+  #define TRACE_FLUSH(...)
 #endif
 
 #ifdef LTRACES

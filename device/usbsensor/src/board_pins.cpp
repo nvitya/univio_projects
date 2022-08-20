@@ -13,8 +13,6 @@ THwI2c         i2c;
 THwDmaChannel  i2c_txdma;
 THwDmaChannel  i2c_rxdma;
 
-TI2cManager    i2cmgr;
-
 THwUart   conuart;  // console uart
 unsigned  pin_led_count = 1;
 
@@ -265,6 +263,4 @@ void board_pins_init()
     pin_led[n].Setup(PINCFG_OUTPUT | PINCFG_GPIO_INIT_0);
     pin_led[n].Set0();
   }
-
-  i2cmgr.Init(&i2c);
 }

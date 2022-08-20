@@ -10,11 +10,15 @@
 
 #include "hwpins.h"
 #include "hwuart.h"
+#include "hwi2c.h"
+#include "hwdma.h"
 
 #define MAX_LEDS  4
 
 extern TGpioPin   pin_led[MAX_LEDS];
 extern unsigned   pin_led_count;
+
+extern THwI2c     i2c;
 
 extern THwUart    conuart;  // console uart
 
