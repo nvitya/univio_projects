@@ -62,8 +62,8 @@ void board_pins_init()
   hwpinctrl.PinSetup(PORTNUM_A, 12, PINCFG_INPUT | PINCFG_AF_10 | PINCFG_SPEED_FAST);  // USB DP
 
   // I2C
-  hwpinctrl.PinSetup(PORTNUM_B,  6, PINCFG_AF_4 | PINCFG_PULLUP);  // I2C_SCL
-  hwpinctrl.PinSetup(PORTNUM_B,  7, PINCFG_AF_4 | PINCFG_PULLUP);  // I2C_SDA
+  hwpinctrl.PinSetup(PORTNUM_B,  6, PINCFG_AF_4 | PINCFG_OPENDRAIN | PINCFG_PULLUP);  // I2C_SCL
+  hwpinctrl.PinSetup(PORTNUM_B,  7, PINCFG_AF_4 | PINCFG_OPENDRAIN | PINCFG_PULLUP);  // I2C_SDA
   i2c.speed = 10000;
   i2c.Init(1);
   i2c_txdma.Init(1, 7, 1);

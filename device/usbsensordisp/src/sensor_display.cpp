@@ -109,28 +109,32 @@ void TSensorDisplay::DrawDate()
 void TSensorDisplay::DrawValues()
 {
   int16_t xs = 478;
+  int16_t ts = 335;
   char    txt[16];
   uint16_t tw;
 
   disp.SetFont(&font_sans_32);
 
   disp.color = color_tc;
-  mp_snprintf(txt, sizeof(txt), "%.1f", v_tc / 10.0);
+  mp_snprintf(txt, sizeof(txt), "%4.1f", v_tc / 10.0);
   tw = disp.TextWidth(txt);
   disp.SetCursor(xs - tw, 100);
   disp.DrawString(txt);
+  disp.FillRect(ts, 100, xs - tw - ts, 70, 0);
 
   disp.color = color_rh;
-  mp_snprintf(txt, sizeof(txt), "%d", v_rh);
+  mp_snprintf(txt, sizeof(txt), "%2d", v_rh);
   tw = disp.TextWidth(txt);
   disp.SetCursor(xs - tw, 175);
   disp.DrawString(txt);
+  disp.FillRect(ts, 175, xs - tw - ts, 70, 0);
 
   disp.color = color_pa;
-  mp_snprintf(txt, sizeof(txt), "%d", v_pa);
+  mp_snprintf(txt, sizeof(txt), "%4d", v_pa);
   tw = disp.TextWidth(txt);
   disp.SetCursor(xs - tw, 254);
   disp.DrawString(txt);
+  disp.FillRect(ts, 254, xs - tw - ts, 70, 0);
 }
 
 void TSensorDisplay::DrawUnits()

@@ -32,6 +32,8 @@
 
 #include <uio_sensor.h>
 
+#include "sensor_display.h"
+
 TAht10            aht10;
 TBmp280           bmp280;
 
@@ -86,6 +88,28 @@ bool TUioSensor::HandleDeviceRequest(TUnivioRequest * rq)
 
     return ResponseError(rq, UIOERR_WRONG_ADDR);
   }
+  else if ((0x3000 <= addr) && (addr < 0x4000)) // display control
+  {
+    switch (addr)
+    {
+      case 0x3000:
+        err = HandleRw(rq, &g_display.v_seconds, sizeof(g_display.v_seconds));
+        g_display.DrawClock();
+        return err;
+      case 0x3001:
+        if (rq->iswrite)  memset(&g_display.date_text, 0, sizeof(g_display.date_text));
+        err = HandleRw(rq, &g_display.date_text, sizeof(g_display.date_text));
+        g_display.DrawDate();
+        return err;
+      case 0x3002:
+        if (rq->iswrite)  memset(&g_display.date_text, 0, sizeof(g_display.day_text));
+        err = HandleRw(rq, &g_display.day_text, sizeof(g_display.day_text));
+        g_display.DrawDate();
+        return err;
+    }
+
+    return ResponseError(rq, UIOERR_WRONG_ADDR);
+  }
   else if ((0x8000 <= addr) && (addr + rq->length <= 0x8000 + sizeof(TBmp280Results))) // sensor result structs
   {
     uint8_t * u8ptr = (uint8_t *)&bmp280_results;
@@ -95,6 +119,27 @@ bool TUioSensor::HandleDeviceRequest(TUnivioRequest * rq)
   {
     uint8_t * u8ptr = (uint8_t *)&aht10_results;
     return HandleRw(rq, u8ptr + (addr - 0x8100), rq->length);
+  }
+  else if ((0x8200 <= addr) && (addr + rq->length <= 0x8200 + sizeof(g_display.hist_tc.data)))
+  {
+    uint8_t * u8ptr = (uint8_t *)&g_display.hist_tc.data[0];
+    err = HandleRw(rq, u8ptr + (addr - 0x8200), rq->length);
+    g_display.hist_tc.Draw();
+    return err;
+  }
+  else if ((0x8400 <= addr) && (addr + rq->length <= 0x8400 + sizeof(g_display.hist_rh.data)))
+  {
+    uint8_t * u8ptr = (uint8_t *)&g_display.hist_rh.data[0];
+    err = HandleRw(rq, u8ptr + (addr - 0x8400), rq->length);
+    g_display.hist_rh.Draw();
+    return err;
+  }
+  else if ((0x8600 <= addr) && (addr + rq->length <= 0x8600 + sizeof(g_display.hist_pa.data)))
+  {
+    uint8_t * u8ptr = (uint8_t *)&g_display.hist_pa.data[0];
+    err = HandleRw(rq, u8ptr + (addr - 0x8600), rq->length);
+    g_display.hist_pa.Draw();
+    return err;
   }
 
   return false;
@@ -126,6 +171,10 @@ void TUioSensor::Run()
     aht10_results.t_deg_x100 = aht10.t_deg_x100;
     aht10_results.rh_percent_x100 = aht10.rh_percent_x100;
 
+    //g_display.v_tc = ((aht10_results.t_deg_x100 + 5) / 10);
+    g_display.v_rh = ((aht10_results.rh_percent_x100 + 50) / 100);
+    g_display.DrawValues();
+
     aht10.prev_measure_count = aht10.measure_count;
   }
 
@@ -138,6 +187,10 @@ void TUioSensor::Run()
     bmp280_results.measure_count = bmp280.measure_count;
     bmp280_results.t_deg_x100 = bmp280.t_celsius_x100;
     bmp280_results.p_pascal = bmp280.p_pascal;
+
+    g_display.v_tc = ((bmp280_results.t_deg_x100 + 5) / 10);
+    g_display.v_pa = (bmp280_results.p_pascal + 50) / 100;
+    g_display.DrawValues();
 
     bmp280.prev_measure_count = bmp280.measure_count;
   }

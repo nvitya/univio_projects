@@ -24,7 +24,7 @@ public:
   int16_t      y = 0;
   uint16_t     height = 64;
 
-  uint16_t     bgcolor = RGB16(0x20, 0x20, 0x20);
+  uint16_t     bgcolor = RGB16(0x10, 0x10, 0x10);
   uint16_t     color   = RGB16(0x00, 0x00, 0xFF);
 
   uint8_t      data[MAX_HIST_SIZE];
